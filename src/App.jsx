@@ -24,6 +24,7 @@ import { MySchedule, MyStudents } from './components/pages/tutor/TutorPages'
 
 // Outside pages
 import { BookTable, MyBookings } from './components/pages/outside/OutsidePages'
+import { PublicBookPage } from './PublicBook'
 
 import './index.css'
 
