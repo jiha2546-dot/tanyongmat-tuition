@@ -43,7 +43,7 @@ export function Topbar() {
       <div>
         <div className="text-white font-semibold text-base flex items-center gap-2">
           <i className="ti ti-school" aria-hidden="true" />
-          Tanyongmat Tuition Center
+          บ้านสวน Homie Learning
         </div>
         <div className="text-green-100 text-xs mt-0.5">Management System</div>
       </div>

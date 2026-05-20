@@ -24,7 +24,7 @@ export function LoginPage() {
           <div className="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <i className="ti ti-school text-white text-3xl" aria-hidden="true" />
           </div>
-          <h1 className="text-xl font-semibold text-gray-800">Tanyongmat Tuition</h1>
+          <h1 className="text-xl font-semibold text-gray-800">บ้านสวน Homie Learning</h1>
           <p className="text-sm text-gray-400 mt-1">Sign in to continue</p>
         </div>
 
