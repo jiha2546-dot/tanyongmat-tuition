@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './hooks/useAuth'
 import { useBookings } from './hooks/useBookings'
 import { useStudents, useEnrollments } from './hooks/useStudents'
 import { useCashEntries, useWorkLog } from './hooks/useFinancials'
+import { useTutors } from './hooks/useTutors'
 import { Topbar, Nav, TABS } from './components/layout/Layout'
 import { LoginPage } from './components/pages/LoginPage'
 import { Spinner } from './components/shared/UI'
@@ -13,6 +14,7 @@ import { Bookings } from './components/pages/admin/Bookings'
 import { Students } from './components/pages/admin/Students'
 import { Enrollments } from './components/pages/admin/Enrollments'
 import { WorkLog, CashLog } from './components/pages/admin/WorkLogCashLog'
+import { Tutors } from './components/pages/admin/Tutors'
 
 // Hannan pages
 import { Audit, Financials, PayoutCalc } from './components/pages/hannan/HannanPages'
@@ -35,6 +37,7 @@ function AppInner() {
   const { enrollments, addEnrollment, recordPayment, markUnpaid } = useEnrollments()
   const { entries, income, expenses, distributable, addEntry, deleteEntry } = useCashEntries()
   const { worklog, totalHours, byPerson, addEntry: addWork, deleteEntry: deleteWork } = useWorkLog()
+  const { tutors, addTutor, deactivateTutor, tutorNames } = useTutors()
 
   if (loading) {
     return (
@@ -78,6 +81,7 @@ function AppInner() {
         return (
           <Bookings
             bookings={bookings}
+            tutorNames={tutorNames}
             onAdd={addBooking}
             onTogglePaid={(id, current) => togglePaid(id, current)}
             onCancel={cancelBooking}
@@ -97,9 +101,18 @@ function AppInner() {
           <Enrollments
             enrollments={enrollments}
             students={students}
+            tutorNames={tutorNames}
             onAdd={addEnrollment}
             onRecordPayment={async (id, data) => { await recordPayment(id, data) }}
             onMarkUnpaid={markUnpaid}
+          />
+        )
+      case 'tutors':
+        return (
+          <Tutors
+            tutors={tutors}
+            onAdd={addTutor}
+            onDeactivate={deactivateTutor}
           />
         )
       case 'worklog':

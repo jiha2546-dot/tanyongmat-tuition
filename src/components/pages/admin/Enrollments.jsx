@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { Card, SectionTitle, Button, Modal, FormRow, FormGroup, Input, Select, Badge, DataTable, Alert } from '../../shared/UI'
 import { PaymentModal } from '../../shared/PaymentModal'
-import { fmt, fmtDate, SUBJECTS, TUTORS, COURSE_PRICES, today } from '../../../lib/utils'
+import { fmt, fmtDate, SUBJECTS, COURSE_PRICES, today } from '../../../lib/utils'
 
-export function Enrollments({ enrollments, students, onAdd, onRecordPayment, onMarkUnpaid }) {
+export function Enrollments({ enrollments, students, tutorNames = [], onAdd, onRecordPayment, onMarkUnpaid }) {
   const [showForm, setShowForm] = useState(false)
   const [payId, setPayId] = useState(null)
   const [form, setForm] = useState({
@@ -86,7 +86,10 @@ export function Enrollments({ enrollments, students, onAdd, onRecordPayment, onM
           <FormRow>
             <FormGroup label="Tutor">
               <Select value={form.tutor} onChange={e => set('tutor', e.target.value)}>
-                {TUTORS.map(t => <option key={t}>{t}</option>)}
+                {tutorNames.length === 0
+                  ? <option value="">No tutors yet — add in Tutors tab first</option>
+                  : tutorNames.map(t => <option key={t}>{t}</option>)
+                }
               </Select>
             </FormGroup>
             <FormGroup label="Type">

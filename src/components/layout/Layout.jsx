@@ -13,6 +13,7 @@ const TABS = {
     { id: 'bookings',    icon: 'ti-calendar',          label: 'Bookings' },
     { id: 'students',    icon: 'ti-users',             label: 'Students' },
     { id: 'enrollments', icon: 'ti-book',              label: 'Courses & Payments' },
+    { id: 'tutors',      icon: 'ti-school',            label: 'Tutors' },
     { id: 'worklog',     icon: 'ti-clipboard-list',    label: 'Work log' },
     { id: 'cashlog',     icon: 'ti-cash',              label: 'Cash log' },
   ],

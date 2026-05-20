@@ -3,7 +3,7 @@ import { Card, SectionTitle, Button, Modal, FormRow, FormGroup, Input, Select, B
 import { TableGrid } from '../../shared/TableGrid'
 import { fmt, fmtDate, calcHours, getUnavailableTables, ALL_TABLES, today } from '../../../lib/utils'
 
-export function Bookings({ bookings, onAdd, onTogglePaid, onCancel }) {
+export function Bookings({ bookings, tutorNames = [], onAdd, onTogglePaid, onCancel }) {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({
     type: 'outside', booker_name: '', booker_phone: '', tutor_name: '',
@@ -68,8 +68,14 @@ export function Bookings({ bookings, onAdd, onTogglePaid, onCancel }) {
                 <option value="our">Our tutor</option>
               </Select>
             </FormGroup>
-            <FormGroup label="Name">
-              <Input value={form.booker_name} onChange={e => set('booker_name', e.target.value)} placeholder="Name" />
+            <FormGroup label={form.type === 'our' ? 'Tutor name' : 'Booker name'}>
+              {form.type === 'our' && tutorNames.length > 0
+                ? <Select value={form.booker_name} onChange={e => set('booker_name', e.target.value)}>
+                    <option value="">Select tutor…</option>
+                    {tutorNames.map(t => <option key={t}>{t}</option>)}
+                  </Select>
+                : <Input value={form.booker_name} onChange={e => set('booker_name', e.target.value)} placeholder="Name" />
+              }
             </FormGroup>
           </FormRow>
           <FormRow>
