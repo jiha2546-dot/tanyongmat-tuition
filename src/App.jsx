@@ -58,7 +58,7 @@ function AppInner() {
               บ้านสวน Homie Learning
             </div>
           </div>
-          <BookTable bookings={[]} onBooked={() => {}} />
+          <BookTable bookings={bookings} onBooked={() => {}} />
           <div className="text-center pb-6">
             <button onClick={() => window.location.href = '/'} className="text-sm text-green-500 hover:underline">
               ← Back to sign in
