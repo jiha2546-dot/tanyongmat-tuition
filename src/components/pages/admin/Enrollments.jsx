@@ -7,7 +7,7 @@ export function Enrollments({ enrollments, students, tutorNames = [], onAdd, onR
   const [showForm, setShowForm] = useState(false)
   const [payId, setPayId] = useState(null)
   const [form, setForm] = useState({
-    student_id: '', subject: SUBJECTS[0], tutor: TUTORS[0],
+    student_id: '', subject: SUBJECTS[0], tutor: '',
     type: 'course', course_type: '1on1', amount: 2800, paid: false, notes: '',
   })
   const [saving, setSaving] = useState(false)
