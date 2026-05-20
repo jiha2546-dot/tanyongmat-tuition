@@ -49,10 +49,23 @@ function AppInner() {
 
   // Outside/parent booking — no login needed
   if (!user || !profile) {
-    // Check if trying to access public booking page
-    const hash = window.location.hash
-    if (hash === '#book' || !user) {
-      if (!user) return <LoginPage />
+    if (window.location.pathname === '/book') {
+      return (
+        <div className="min-h-screen bg-gray-50">
+          <div className="bg-green-500 px-4 py-3">
+            <div className="text-white font-semibold text-base flex items-center gap-2">
+              <i className="ti ti-school" aria-hidden="true" />
+              บ้านสวน Homie Learning
+            </div>
+          </div>
+          <BookTable bookings={[]} onBooked={() => {}} />
+          <div className="text-center pb-6">
+            <button onClick={() => window.location.href = '/'} className="text-sm text-green-500 hover:underline">
+              ← Back to sign in
+            </button>
+          </div>
+        </div>
+      )
     }
     return <LoginPage />
   }
