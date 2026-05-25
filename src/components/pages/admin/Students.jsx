@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { Card, SectionTitle, Button, Modal, FormRow, FormGroup, Input, Select, Textarea, Badge } from '../../shared/UI'
 import { fmtDate, LEVELS, today } from '../../../lib/utils'
+import { supabase } from '../../../lib/supabase'
 
 export function Students({ students, enrollments, onAdd, onDelete, readOnly = false }) {
   const [showForm, setShowForm] = useState(false)
   const [confirmId, setConfirmId] = useState(null)
+  const [deleting, setDeleting] = useState(false)
   const [form, setForm] = useState({ name: '', age: 8, level: 'P1', school: 'Laemthong', notes: '', join_date: today() })
   const [saving, setSaving] = useState(false)
 
@@ -16,6 +18,18 @@ export function Students({ students, enrollments, onAdd, onDelete, readOnly = fa
     await onAdd({ ...form, age: Number(form.age) })
     setShowForm(false)
     setSaving(false)
+  }
+
+  async function doDelete(id) {
+    setDeleting(true)
+    const { error } = await supabase.from('students').delete().eq('id', id)
+    if (error) {
+      alert('Error: ' + error.message)
+    } else {
+      onDelete && onDelete(id)
+    }
+    setConfirmId(null)
+    setDeleting(false)
   }
 
   const subjectCounts = {}
@@ -51,7 +65,9 @@ export function Students({ students, enrollments, onAdd, onDelete, readOnly = fa
           <span className="text-sm text-red-700 font-medium">Remove <strong>{students.find(s=>s.id===confirmId)?.name}</strong> and all their enrollments?</span>
           <div className="flex gap-2">
             <button onClick={() => setConfirmId(null)} className="text-xs px-3 py-1.5 border border-gray-200 rounded-lg bg-white text-gray-600 hover:bg-gray-50">Cancel</button>
-            <button onClick={() => { onDelete && onDelete(confirmId); setConfirmId(null) }} className="text-xs px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium">Yes, remove</button>
+            <button onClick={() => doDelete(confirmId)} disabled={deleting} className="text-xs px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium">
+              {deleting ? 'Removing...' : 'Yes, remove'}
+            </button>
           </div>
         </div>
       )}
