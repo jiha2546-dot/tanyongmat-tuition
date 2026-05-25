@@ -85,7 +85,7 @@ export function BookTable({ bookings, onBooked }) {
       </div>
 
       <div className="bg-green-50 border border-green-100 rounded-xl px-4 py-3 mb-4 text-xs text-green-700">
-        <strong>20 ฿ / ชั่วโมง / โต๊ะ (อย่างต่ำ 1 ชั่วโมง) · นักเรียนสูงสุด 4 คน · ชำระเงินสดที่เคาน์เตอร์ | 20฿/hr/table (Min 1 hr) · Max 4 students · Pay cash at counter</strong>
+        <strong>20 ฿ / ชั่วโมง / โต๊ะ (อย่างต่ำ 1 ชั่วโมง) · นักเรียนสูงสุด 4 คน · ชำระเงินสดที่เคาน์เตอร์</strong>
         {' '}· ครึ่งชั่วโมง = 10 ฿ · 30 min = 10 THB
         · นักเรียนสูงสุด 4 คน · Max 4 students
         · ชำระเงินสดที่เคาน์เตอร์ · Pay cash at counter
