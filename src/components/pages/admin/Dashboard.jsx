@@ -12,7 +12,7 @@ function StatCard({ label, sub, value, color = 'green', note }) {
   )
 }
 
-export function Dashboard({ bookings, enrollments, entries, worklog, byPerson }) {
+export function Dashboard({ bookings = [], enrollments = [], entries = [], worklog = [], byPerson = {} }) {
   const now = new Date()
   const month = now.toISOString().slice(0, 7)
   const today = now.toISOString().slice(0, 10)
