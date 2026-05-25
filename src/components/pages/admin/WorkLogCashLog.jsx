@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import { Card, SectionTitle, Button, Modal, FormRow, FormGroup, Input, Select, Badge, DataTable, Metric, MetricsGrid } from '../../shared/UI'
-import { fmt, fmtDate, SHIFTS, EXPENSE_CATS, today } from '../../../lib/utils'
+import { Card, SectionTitle, Button, Modal, FormRow, FormGroup, Input, Select, Textarea, Badge, DataTable } from '../../shared/UI'
+import { fmt, fmtDate, today } from '../../../lib/utils'
 
-// ── Work Log ──────────────────────────────────────────────────────────────────
-export function WorkLog({ worklog, totalHours, byPerson, distributable, onAdd, onDelete }) {
+export function WorkLog({ worklog, totalHours, byPerson, onAdd, onDelete }) {
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState({ date: today(), worker_name: 'Teh Ming', hours: 3.5, shift: 'evening', note: '' })
+  const [form, setForm] = useState({ date: today(), worker_name: 'Teh Ming', hours: 3.5, shift: 'เย็น · Evening', note: '' })
   const [saving, setSaving] = useState(false)
 
   function set(k, v) { setForm(f => ({ ...f, [k]: v })) }
@@ -17,199 +16,142 @@ export function WorkLog({ worklog, totalHours, byPerson, distributable, onAdd, o
     setSaving(false)
   }
 
-  const laborPool = distributable * 0.4
-
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-gray-800">Work log</h2>
+        <div>
+          <h2 className="text-sm font-semibold text-gray-800">บันทึกการทำงาน</h2>
+          <p className="text-[10px] text-gray-400">Work log</p>
+        </div>
         <Button variant="primary" onClick={() => setShowForm(s => !s)}>
-          <i className="ti ti-plus" aria-hidden="true" /> Add entry
+          <i className="ti ti-plus" aria-hidden="true" /> บันทึก · Log
         </Button>
       </div>
 
       {showForm && (
-        <Modal title="Add work log entry" onClose={() => setShowForm(false)}>
+        <Modal title="บันทึกการทำงาน · Log work" onClose={() => setShowForm(false)}>
           <FormRow>
-            <FormGroup label="Date">
-              <Input type="date" value={form.date} onChange={e => set('date', e.target.value)} />
-            </FormGroup>
-            <FormGroup label="Who worked">
-              <Input value={form.worker_name} onChange={e => set('worker_name', e.target.value)} placeholder="Name" />
-            </FormGroup>
+            <FormGroup label="วันที่ · Date"><Input type="date" value={form.date} onChange={e => set('date', e.target.value)} /></FormGroup>
+            <FormGroup label="ผู้ทำงาน · Worker"><Input value={form.worker_name} onChange={e => set('worker_name', e.target.value)} /></FormGroup>
           </FormRow>
           <FormRow>
-            <FormGroup label="Hours">
-              <Input type="number" step="0.5" min="0.5" max="12" value={form.hours} onChange={e => set('hours', e.target.value)} />
-            </FormGroup>
-            <FormGroup label="Shift">
+            <FormGroup label="จำนวนชั่วโมง · Hours"><Input type="number" step="0.5" min="0.5" value={form.hours} onChange={e => set('hours', e.target.value)} /></FormGroup>
+            <FormGroup label="กะ · Shift">
               <Select value={form.shift} onChange={e => set('shift', e.target.value)}>
-                {SHIFTS.map(s => <option key={s}>{s}</option>)}
+                <option value="เช้า · Morning">เช้า · Morning</option>
+                <option value="เย็น · Evening">เย็น · Evening</option>
+                <option value="เต็มวัน · Full day">เต็มวัน · Full day</option>
               </Select>
             </FormGroup>
           </FormRow>
-          <div className="mb-4">
-            <FormGroup label="Note">
-              <Input value={form.note} onChange={e => set('note', e.target.value)} placeholder="Optional note" />
-            </FormGroup>
-          </div>
-          <Button variant="primary" size="lg" className="w-full justify-center" onClick={save} disabled={saving}>
-            {saving ? 'Saving...' : 'Save entry'}
+          <FormGroup label="หมายเหตุ · Note"><Textarea value={form.note} onChange={e => set('note', e.target.value)} rows={2} /></FormGroup>
+          <Button variant="primary" size="lg" className="w-full justify-center mt-2" onClick={save} disabled={saving}>
+            {saving ? 'กำลังบันทึก...' : 'บันทึก · Save'}
           </Button>
         </Modal>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-        <Metric label="Total hours" value={`${totalHours}h`} />
-        {Object.entries(byPerson).map(([name, hours]) => (
-          <Metric
-            key={name}
-            label={name}
-            value={`${hours}h`}
-            sub={`${totalHours ? Math.round(hours / totalHours * 100) : 0}% of labor`}
-          />
-        ))}
+      <div className="grid grid-cols-2 gap-3 mb-3">
+        <Card>
+          <div className="text-xs text-gray-400 mb-1">ชั่วโมงทำงานเดือนนี้ · Total hours this month</div>
+          <div className="text-2xl font-bold text-green-600">{totalHours} <span className="text-sm font-normal text-gray-400">ชม. · hrs</span></div>
+        </Card>
+        <Card>
+          <div className="text-xs text-gray-400 mb-2">ชั่วโมงตามผู้ทำงาน · By worker</div>
+          {Object.entries(byPerson).map(([name, hrs]) => (
+            <div key={name} className="flex justify-between text-xs"><span>{name}</span><span className="font-semibold">{hrs} ชม.</span></div>
+          ))}
+        </Card>
       </div>
-
-      <Card>
-        <SectionTitle icon="ti-wallet">Labor pay split (40% = {fmt(laborPool)} ฿)</SectionTitle>
-        {Object.entries(byPerson).map(([name, hours]) => {
-          const share = totalHours ? laborPool * (hours / totalHours) : 0
-          return (
-            <div key={name} className="flex justify-between items-center py-2.5 border-b border-gray-50 last:border-0">
-              <span className="text-sm">
-                {name}{' '}
-                <span className="text-xs text-gray-300">({hours}h / {totalHours}h total)</span>
-              </span>
-              <span className="font-semibold text-green-600 text-sm">{fmt(share)} ฿</span>
-            </div>
-          )
-        })}
-      </Card>
 
       <Card>
         <DataTable
           cols={[
-            { key: 'date', label: 'Date', width: '14%', render: w => fmtDate(w.date) },
-            { key: 'worker_name', label: 'Who', width: '22%', render: w => <span className="font-medium">{w.worker_name}</span> },
-            { key: 'hours', label: 'Hours', width: '12%', render: w => `${w.hours}h` },
-            { key: 'shift', label: 'Shift', width: '16%', render: w => <Badge color="gray">{w.shift}</Badge> },
-            { key: 'note', label: 'Note', width: '26%', render: w => w.note || '—' },
-            { key: 'del', label: '', width: '10%', render: w => <Button size="sm" variant="danger" onClick={() => onDelete(w.id)}>Del</Button> },
+            { key: 'date', label: 'วันที่ · Date', width: '12%', render: w => fmtDate(w.date) },
+            { key: 'worker_name', label: 'ผู้ทำงาน · Worker', width: '18%' },
+            { key: 'hours', label: 'ชม. · Hrs', width: '10%', render: w => `${w.hours} ชม.` },
+            { key: 'shift', label: 'กะ · Shift', width: '20%' },
+            { key: 'note', label: 'หมายเหตุ · Note', width: '30%', render: w => <span className="text-gray-400">{w.note || '—'}</span> },
+            { key: 'del', label: '', width: '10%', render: w => (
+              <Button size="sm" variant="danger" onClick={() => onDelete(w.id)}>ลบ · Del</Button>
+            )},
           ]}
           rows={worklog}
-          empty="No work log entries yet."
+          empty="ยังไม่มีบันทึก · No entries yet."
         />
       </Card>
     </div>
   )
 }
 
-// ── Cash Log ──────────────────────────────────────────────────────────────────
 export function CashLog({ entries, income, expenses, distributable, onAdd, onDelete }) {
-  const [showIncome, setShowIncome] = useState(false)
-  const [showExpense, setShowExpense] = useState(false)
-  const [incForm, setIncForm] = useState({ date: today(), description: '', amount: '', note: '' })
-  const [expForm, setExpForm] = useState({ date: today(), category: EXPENSE_CATS[0], amount: '', note: '' })
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState({ date: today(), description: '', amount: '', type: 'income', category: '', note: '' })
   const [saving, setSaving] = useState(false)
 
-  async function saveIncome() {
+  function set(k, v) { setForm(f => ({ ...f, [k]: v })) }
+
+  async function save() {
+    if (!form.description || !form.amount) { alert('กรุณากรอกรายละเอียดและจำนวนเงิน · Please fill description and amount'); return }
     setSaving(true)
-    await onAdd({ ...incForm, amount: Number(incForm.amount), type: 'income' })
-    setShowIncome(false)
+    await onAdd({ ...form, amount: Number(form.amount) })
+    setShowForm(false)
     setSaving(false)
   }
-
-  async function saveExpense() {
-    setSaving(true)
-    await onAdd({ ...expForm, description: expForm.category, amount: Number(expForm.amount), type: 'expense' })
-    setShowExpense(false)
-    setSaving(false)
-  }
-
-  const incomeRows = entries.filter(e => e.type === 'income')
-  const expenseRows = entries.filter(e => e.type === 'expense')
-
-  const entryCols = (isExpense = false) => [
-    { key: 'date', label: 'Date', width: '14%', render: e => fmtDate(e.date) },
-    { key: 'description', label: 'Description', width: '38%' },
-    { key: 'amount', label: 'Amount', width: '18%', render: e => <span className={`font-semibold ${isExpense ? 'text-red-500' : 'text-green-600'}`}>{fmt(e.amount)} ฿</span> },
-    { key: 'note', label: 'Note', width: '20%', render: e => e.note || '—' },
-    { key: 'del', label: '', width: '10%', render: e => <Button size="sm" variant="danger" onClick={() => onDelete(e.id)}>Del</Button> },
-  ]
 
   return (
     <div className="p-4">
-      <h2 className="text-sm font-semibold text-gray-800 mb-3">Cash log</h2>
-
-      <div className="grid grid-cols-3 gap-2 mb-3">
-        <Metric label="Cash collected" value={`${fmt(income)} ฿`} valueColor="text-green-600" />
-        <Metric label="Expenses paid" value={`${fmt(expenses)} ฿`} valueColor="text-red-500" />
-        <Metric label="Net" value={`${fmt(income - expenses)} ฿`} />
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <h2 className="text-sm font-semibold text-gray-800">รายรับ-รายจ่าย</h2>
+          <p className="text-[10px] text-gray-400">Cash log</p>
+        </div>
+        <Button variant="primary" onClick={() => setShowForm(s => !s)}>
+          <i className="ti ti-plus" aria-hidden="true" /> เพิ่มรายการ · Add entry
+        </Button>
       </div>
 
-      <Card>
-        <div className="flex items-center justify-between mb-3">
-          <SectionTitle icon="ti-arrow-down-circle" children="Income entries" />
-          <Button variant="primary" size="sm" onClick={() => setShowIncome(s => !s)}>
-            <i className="ti ti-plus" aria-hidden="true" /> Add
+      <div className="grid grid-cols-3 gap-3 mb-3">
+        <Card><div className="text-xs text-gray-400">รายรับ · Income</div><div className="text-xl font-bold text-green-600 mt-1">{fmt(income)} ฿</div></Card>
+        <Card><div className="text-xs text-gray-400">รายจ่าย · Expenses</div><div className="text-xl font-bold text-red-500 mt-1">{fmt(expenses)} ฿</div></Card>
+        <Card><div className="text-xs text-gray-400">คงเหลือ · Net</div><div className={`text-xl font-bold mt-1 ${distributable >= 0 ? 'text-green-600' : 'text-red-500'}`}>{fmt(distributable)} ฿</div></Card>
+      </div>
+
+      {showForm && (
+        <Modal title="เพิ่มรายการ · Add entry" onClose={() => setShowForm(false)}>
+          <FormRow>
+            <FormGroup label="วันที่ · Date"><Input type="date" value={form.date} onChange={e => set('date', e.target.value)} /></FormGroup>
+            <FormGroup label="ประเภท · Type">
+              <Select value={form.type} onChange={e => set('type', e.target.value)}>
+                <option value="income">รายรับ · Income</option>
+                <option value="expense">รายจ่าย · Expense</option>
+              </Select>
+            </FormGroup>
+          </FormRow>
+          <FormRow>
+            <FormGroup label="รายละเอียด · Description"><Input value={form.description} onChange={e => set('description', e.target.value)} placeholder="รายละเอียด · Description" /></FormGroup>
+            <FormGroup label="จำนวนเงิน · Amount (฿)"><Input type="number" min="0" value={form.amount} onChange={e => set('amount', e.target.value)} placeholder="0" /></FormGroup>
+          </FormRow>
+          <FormGroup label="หมายเหตุ · Note"><Textarea value={form.note} onChange={e => set('note', e.target.value)} rows={2} /></FormGroup>
+          <Button variant="primary" size="lg" className="w-full justify-center mt-2" onClick={save} disabled={saving}>
+            {saving ? 'กำลังบันทึก...' : 'บันทึก · Save'}
           </Button>
-        </div>
-        {showIncome && (
-          <div className="mb-4 p-3 bg-gray-50 rounded-xl">
-            <FormRow>
-              <FormGroup label="Date">
-                <Input type="date" value={incForm.date} onChange={e => setIncForm(f => ({ ...f, date: e.target.value }))} />
-              </FormGroup>
-              <FormGroup label="Amount (฿)">
-                <Input type="number" value={incForm.amount} onChange={e => setIncForm(f => ({ ...f, amount: e.target.value }))} />
-              </FormGroup>
-            </FormRow>
-            <FormRow>
-              <FormGroup label="Description">
-                <Input value={incForm.description} onChange={e => setIncForm(f => ({ ...f, description: e.target.value }))} placeholder="e.g. Table rental — Khun Arisa" />
-              </FormGroup>
-              <FormGroup label="Note">
-                <Input value={incForm.note} onChange={e => setIncForm(f => ({ ...f, note: e.target.value }))} placeholder="Optional" />
-              </FormGroup>
-            </FormRow>
-            <Button variant="primary" onClick={saveIncome} disabled={saving}>Add income entry</Button>
-          </div>
-        )}
-        <DataTable cols={entryCols(false)} rows={incomeRows} empty="No income entries yet." />
-      </Card>
+        </Modal>
+      )}
 
       <Card>
-        <div className="flex items-center justify-between mb-3">
-          <SectionTitle icon="ti-arrow-up-circle" children="Expenses" />
-          <Button variant="primary" size="sm" onClick={() => setShowExpense(s => !s)}>
-            <i className="ti ti-plus" aria-hidden="true" /> Add
-          </Button>
-        </div>
-        {showExpense && (
-          <div className="mb-4 p-3 bg-gray-50 rounded-xl">
-            <FormRow>
-              <FormGroup label="Date">
-                <Input type="date" value={expForm.date} onChange={e => setExpForm(f => ({ ...f, date: e.target.value }))} />
-              </FormGroup>
-              <FormGroup label="Category">
-                <Select value={expForm.category} onChange={e => setExpForm(f => ({ ...f, category: e.target.value }))}>
-                  {EXPENSE_CATS.map(c => <option key={c}>{c}</option>)}
-                </Select>
-              </FormGroup>
-            </FormRow>
-            <FormRow>
-              <FormGroup label="Amount (฿)">
-                <Input type="number" value={expForm.amount} onChange={e => setExpForm(f => ({ ...f, amount: e.target.value }))} />
-              </FormGroup>
-              <FormGroup label="Note">
-                <Input value={expForm.note} onChange={e => setExpForm(f => ({ ...f, note: e.target.value }))} placeholder="Optional" />
-              </FormGroup>
-            </FormRow>
-            <Button variant="primary" onClick={saveExpense} disabled={saving}>Add expense</Button>
-          </div>
-        )}
-        <DataTable cols={entryCols(true)} rows={expenseRows} empty="No expenses yet." />
+        <DataTable
+          cols={[
+            { key: 'date', label: 'วันที่ · Date', width: '11%', render: e => fmtDate(e.date) },
+            { key: 'type', label: 'ประเภท · Type', width: '10%', render: e => <Badge color={e.type === 'income' ? 'green' : 'red'}>{e.type === 'income' ? 'รับ · In' : 'จ่าย · Out'}</Badge> },
+            { key: 'description', label: 'รายละเอียด · Description', width: '35%' },
+            { key: 'amount', label: 'จำนวน · Amount', width: '14%', render: e => <span className={e.type === 'income' ? 'text-green-600 font-semibold' : 'text-red-500 font-semibold'}>{e.type === 'income' ? '+' : '-'}{fmt(e.amount)} ฿</span> },
+            { key: 'note', label: 'หมายเหตุ · Note', width: '20%', render: e => <span className="text-gray-400">{e.note || '—'}</span> },
+            { key: 'del', label: '', width: '10%', render: e => <Button size="sm" variant="danger" onClick={() => onDelete(e.id)}>ลบ · Del</Button> },
+          ]}
+          rows={entries}
+          empty="ยังไม่มีรายการ · No entries yet."
+        />
       </Card>
     </div>
   )
