@@ -13,23 +13,18 @@ export function Students({ students, enrollments, onAdd, onDelete, readOnly = fa
   function set(k, v) { setForm(f => ({ ...f, [k]: v })) }
 
   async function save() {
-    if (!form.name) { alert('Please enter student name.'); return }
+    if (!form.name) { alert('กรุณากรอกชื่อนักเรียน · Please enter student name.'); return }
     setSaving(true)
     await onAdd({ ...form, age: Number(form.age) })
-    setShowForm(false)
-    setSaving(false)
+    setShowForm(false); setSaving(false)
   }
 
   async function doDelete(id) {
     setDeleting(true)
     const { error } = await supabase.from('students').delete().eq('id', id)
-    if (error) {
-      console.error(error)
-    } else {
-      onDelete && onDelete(id)
-    }
-    setConfirmId(null)
-    setDeleting(false)
+    if (error) alert('เกิดข้อผิดพลาด · Error: ' + error.message)
+    else onDelete && onDelete(id)
+    setConfirmId(null); setDeleting(false)
   }
 
   const subjectCounts = {}
@@ -41,71 +36,72 @@ export function Students({ students, enrollments, onAdd, onDelete, readOnly = fa
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-semibold text-gray-800">Students</h2>
-        {!readOnly && <Button variant="primary" onClick={() => setShowForm(s => !s)}><i className="ti ti-plus" aria-hidden="true" /> Add student</Button>}
+        <div>
+          <h2 className="text-sm font-semibold text-gray-800">นักเรียน</h2>
+          <p className="text-[10px] text-gray-400">Students</p>
+        </div>
+        {!readOnly && <Button variant="primary" onClick={() => setShowForm(s => !s)}><i className="ti ti-plus" /> เพิ่มนักเรียน · Add</Button>}
       </div>
 
       {showForm && (
-        <Modal title="Add student" onClose={() => setShowForm(false)}>
+        <Modal title="เพิ่มนักเรียน · Add student" onClose={() => setShowForm(false)}>
           <FormRow>
-            <FormGroup label="Full name"><Input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Student full name" /></FormGroup>
-            <FormGroup label="Age"><Input type="number" min="4" max="18" value={form.age} onChange={e => set('age', e.target.value)} /></FormGroup>
+            <FormGroup label="ชื่อ-นามสกุล · Full name"><Input value={form.name} onChange={e => set('name', e.target.value)} placeholder="ชื่อนักเรียน · Student name" /></FormGroup>
+            <FormGroup label="อายุ · Age"><Input type="number" min="4" max="18" value={form.age} onChange={e => set('age', e.target.value)} /></FormGroup>
           </FormRow>
           <FormRow>
-            <FormGroup label="Level"><Select value={form.level} onChange={e => set('level', e.target.value)}>{LEVELS.map(l => <option key={l}>{l}</option>)}</Select></FormGroup>
-            <FormGroup label="School"><Input value={form.school} onChange={e => set('school', e.target.value)} /></FormGroup>
+            <FormGroup label="ระดับชั้น · Level"><Select value={form.level} onChange={e => set('level', e.target.value)}>{LEVELS.map(l => <option key={l}>{l}</option>)}</Select></FormGroup>
+            <FormGroup label="โรงเรียน · School"><Input value={form.school} onChange={e => set('school', e.target.value)} /></FormGroup>
           </FormRow>
-          <div className="mb-4"><FormGroup label="Notes"><Textarea value={form.notes} onChange={e => set('notes', e.target.value)} rows={2} /></FormGroup></div>
-          <Button variant="primary" size="lg" className="w-full justify-center" onClick={save} disabled={saving}>{saving ? 'Saving...' : 'Save student'}</Button>
+          <div className="mb-4"><FormGroup label="หมายเหตุ · Notes"><Textarea value={form.notes} onChange={e => set('notes', e.target.value)} rows={2} /></FormGroup></div>
+          <Button variant="primary" size="lg" className="w-full justify-center" onClick={save} disabled={saving}>{saving ? 'กำลังบันทึก...' : 'บันทึก · Save'}</Button>
         </Modal>
       )}
 
       {confirmId && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-3 flex items-center justify-between">
-          <span className="text-sm text-red-700 font-medium">Remove <strong>{students.find(s=>s.id===confirmId)?.name}</strong> and all their enrollments?</span>
+          <span className="text-sm text-red-700 font-medium">ลบ <strong>{students.find(s=>s.id===confirmId)?.name}</strong> และข้อมูลการลงทะเบียนทั้งหมด?</span>
           <div className="flex gap-2">
-            <button onClick={() => setConfirmId(null)} className="text-xs px-3 py-1.5 border border-gray-200 rounded-lg bg-white text-gray-600 hover:bg-gray-50">Cancel</button>
-            <button onClick={() => doDelete(confirmId)} disabled={deleting} className="text-xs px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium">
-              {deleting ? 'Removing...' : 'Yes, remove'}
+            <button onClick={() => setConfirmId(null)} className="text-xs px-3 py-1.5 border border-gray-200 rounded-lg bg-white text-gray-600">ยกเลิก · Cancel</button>
+            <button onClick={() => doDelete(confirmId)} disabled={deleting} className="text-xs px-3 py-1.5 bg-red-500 text-white rounded-lg font-medium">
+              {deleting ? 'กำลังลบ...' : 'ยืนยัน · Confirm'}
             </button>
           </div>
         </div>
       )}
 
       <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-3 shadow-sm">
-        {students.length === 0 ? <p className="text-sm text-gray-400 text-center py-4">No students yet.</p> :
+        {students.length === 0 ? <p className="text-sm text-gray-400 text-center py-4">ยังไม่มีนักเรียน · No students yet.</p> :
         <div className="overflow-x-auto">
           <table className="w-full text-xs border-collapse">
-            <thead>
-              <tr>
-                <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">Name</th>
-                <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">Age</th>
-                <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">Level</th>
-                <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">School</th>
-                <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">Joined</th>
-                <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">Subjects</th>
-                {!readOnly && <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100"></th>}
-              </tr>
-            </thead>
+            <thead><tr>
+              <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">ชื่อ · Name</th>
+              <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">อายุ · Age</th>
+              <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">ชั้น · Level</th>
+              <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">โรงเรียน · School</th>
+              <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">วันที่เข้า · Joined</th>
+              <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">วิชา · Subjects</th>
+              {!readOnly && <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100"></th>}
+            </tr></thead>
             <tbody>
               {students.map(s => {
                 const enr = enrollments.filter(e => e.student_id === s.id)
                 return (
                   <tr key={s.id} className="hover:bg-gray-50 border-b border-gray-50 last:border-0">
                     <td className="px-3 py-2 font-medium text-gray-800">{s.name}</td>
-                    <td className="px-3 py-2 text-gray-600">{s.age}y</td>
+                    <td className="px-3 py-2 text-gray-600">{s.age} ปี</td>
                     <td className="px-3 py-2 text-gray-600">{s.level}</td>
                     <td className="px-3 py-2 text-gray-600">{s.school}</td>
                     <td className="px-3 py-2 text-gray-600">{fmtDate(s.join_date)}</td>
                     <td className="px-3 py-2">
                       {enr.length ? <div className="flex flex-wrap gap-1">{enr.map(e => <Badge key={e.id} color={e.paid ? 'green' : 'red'}>{e.subject}</Badge>)}</div>
-                      : <span className="text-gray-300">None yet</span>}
+                      : <span className="text-gray-300">ยังไม่มี · None</span>}
                     </td>
                     {!readOnly && (
                       <td className="px-3 py-2">
                         <button onClick={() => setConfirmId(s.id)}
                           className="bg-red-50 hover:bg-red-100 text-red-500 border border-red-200 rounded-lg px-2 py-1 text-xs flex items-center gap-1 whitespace-nowrap">
-                          <i className="ti ti-trash" aria-hidden="true" /> Remove
+                          <i className="ti ti-trash" /> ลบ · Remove
                         </button>
                       </td>
                     )}
@@ -117,12 +113,12 @@ export function Students({ students, enrollments, onAdd, onDelete, readOnly = fa
         </div>}
       </div>
 
-      <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-3 shadow-sm">
-        <SectionTitle icon="ti-chart-bar">Data insights</SectionTitle>
+      <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm">
+        <SectionTitle icon="ti-chart-bar">ข้อมูลสรุป · Data insights</SectionTitle>
         <div className="grid grid-cols-3 gap-4 text-xs">
-          <div><div className="font-medium text-gray-500 mb-2">Popular subjects</div>{Object.entries(subjectCounts).sort((a,b)=>b[1]-a[1]).map(([s,c])=><div key={s} className="flex justify-between py-1 border-b border-gray-50"><span>{s}</span><span className="font-semibold">{c}</span></div>)}</div>
-          <div><div className="font-medium text-gray-500 mb-2">Levels</div>{Object.entries(levelCounts).sort().map(([l,c])=><div key={l} className="flex justify-between py-1 border-b border-gray-50"><span>{l}</span><span className="font-semibold">{c}</span></div>)}</div>
-          <div><div className="font-medium text-gray-500 mb-2">Enrollment types</div><div className="flex justify-between py-1 border-b border-gray-50"><span>Course</span><span className="font-semibold">{enrollments.filter(e=>e.type==='course').length}</span></div><div className="flex justify-between py-1 border-b border-gray-50"><span>Hourly</span><span className="font-semibold">{enrollments.filter(e=>e.type==='hourly').length}</span></div><div className="mt-3 text-gray-400">Avg age: <span className="font-semibold text-gray-600">{avgAge}y</span></div></div>
+          <div><div className="font-medium text-gray-500 mb-2">วิชายอดนิยม · Popular subjects</div>{Object.entries(subjectCounts).sort((a,b)=>b[1]-a[1]).map(([s,c])=><div key={s} className="flex justify-between py-1 border-b border-gray-50"><span>{s}</span><span className="font-semibold">{c}</span></div>)}</div>
+          <div><div className="font-medium text-gray-500 mb-2">ระดับชั้น · Levels</div>{Object.entries(levelCounts).sort().map(([l,c])=><div key={l} className="flex justify-between py-1 border-b border-gray-50"><span>{l}</span><span className="font-semibold">{c}</span></div>)}</div>
+          <div><div className="font-medium text-gray-500 mb-2">ประเภทเรียน · Types</div><div className="flex justify-between py-1 border-b border-gray-50"><span>คอร์ส · Course</span><span className="font-semibold">{enrollments.filter(e=>e.type==='course').length}</span></div><div className="flex justify-between py-1 border-b border-gray-50"><span>รายชั่วโมง · Hourly</span><span className="font-semibold">{enrollments.filter(e=>e.type==='hourly').length}</span></div><div className="mt-3 text-gray-400">อายุเฉลี่ย · Avg age: <span className="font-semibold text-gray-600">{avgAge} ปี</span></div></div>
         </div>
       </div>
     </div>
