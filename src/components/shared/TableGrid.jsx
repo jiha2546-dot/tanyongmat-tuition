@@ -28,7 +28,7 @@ export function TableGrid({ unavailable = [], selected, onSelect, disabled = fal
         />
         <div className={`text-xs font-semibold ${sel ? 'text-white' : 'text-gray-700'}`}>{table}</div>
         <div className={`text-[10px] mt-0.5 ${sel ? 'text-green-100' : 'text-gray-400'}`}>
-          {busy ? 'Unavailable' : sel ? 'Selected' : floor ? 'โต๊ะสำหรับเด็กเล็ก' : 'Available'}
+          {busy ? 'ไม่ว่าง' : sel ? 'เลือกแล้ว' : floor ? 'โต๊ะสำหรับเด็กเล็ก' : 'ว่าง'}
         </div>
       </div>
     )
@@ -38,7 +38,7 @@ export function TableGrid({ unavailable = [], selected, onSelect, disabled = fal
     <div>
       <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
         <i className="ti ti-armchair mr-1" aria-hidden="true" />
-        Chair tables — standard
+        โต๊ะ-เก้าอี้ · Chair tables
       </div>
       <div className="grid grid-cols-5 gap-2 mb-4">
         {CHAIR_TABLES.map(t => <TableCard key={t} table={t} />)}
@@ -46,7 +46,7 @@ export function TableGrid({ unavailable = [], selected, onSelect, disabled = fal
 
       <div className="text-xs font-medium text-gray-400 uppercase tracking-wide mb-2">
         <i className="ti ti-mood-kid mr-1" aria-hidden="true" />
-        Floor tables — kindergarten (low, no chairs)
+        โต๊ะญี่ปุ่น (เหมาะสำหรับเด็กอนุบาล) · Floor tables
       </div>
       <div className="grid grid-cols-3 gap-2">
         {FLOOR_TABLES.map(t => <TableCard key={t} table={t} />)}
