@@ -46,27 +46,50 @@ export function Students({ students, enrollments, onAdd, onDelete, readOnly = fa
       )}
 
       <Card>
-        <DataTable
-          cols={[
-            { key: 'name', label: 'Name', width: '20%', render: s => <span className="font-medium">{s.name}</span> },
-            { key: 'age', label: 'Age', width: '7%', render: s => s.age + 'y' },
-            { key: 'level', label: 'Level', width: '7%' },
-            { key: 'school', label: 'School', width: '13%' },
-            { key: 'join_date', label: 'Joined', width: '9%', render: s => fmtDate(s.join_date) },
-            { key: 'courses', label: 'Enrolled subjects', width: '28%', render: s => {
-              const enr = enrollments.filter(e => e.student_id === s.id)
-              return enr.length ? <div className="flex flex-wrap gap-1">{enr.map(e => <Badge key={e.id} color={e.paid ? 'green' : 'red'}>{e.subject}</Badge>)}</div> : <span className="text-gray-300 text-xs">None yet</span>
-            }},
-            { key: 'del', label: '', width: '16%', render: s => !readOnly && onDelete ? (
-              <button onClick={() => { if (window.confirm('Remove ' + s.name + '? This will also delete their enrollments.')) onDelete(s.id) }}
-                className="flex items-center gap-1 text-xs text-red-400 hover:text-red-600 border border-red-200 hover:border-red-400 px-2 py-1 rounded-lg">
-                <i className="ti ti-trash" aria-hidden="true" /> Remove
-              </button>
-            ) : null },
-          ]}
-          rows={students}
-          empty="No students yet."
-        />
+        {students.length === 0 ? <p className="text-sm text-gray-400 text-center py-4">No students yet.</p> :
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs border-collapse">
+            <thead>
+              <tr>
+                <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">Name</th>
+                <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">Age</th>
+                <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">Level</th>
+                <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">School</th>
+                <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">Joined</th>
+                <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100">Subjects</th>
+                {!readOnly && <th className="text-left px-3 py-2 text-gray-400 font-medium border-b border-gray-100"></th>}
+              </tr>
+            </thead>
+            <tbody>
+              {students.map(s => {
+                const enr = enrollments.filter(e => e.student_id === s.id)
+                return (
+                  <tr key={s.id} className="hover:bg-gray-50 border-b border-gray-50">
+                    <td className="px-3 py-2 font-medium text-gray-800">{s.name}</td>
+                    <td className="px-3 py-2 text-gray-600">{s.age}y</td>
+                    <td className="px-3 py-2 text-gray-600">{s.level}</td>
+                    <td className="px-3 py-2 text-gray-600">{s.school}</td>
+                    <td className="px-3 py-2 text-gray-600">{fmtDate(s.join_date)}</td>
+                    <td className="px-3 py-2">
+                      {enr.length ? <div className="flex flex-wrap gap-1">{enr.map(e => <Badge key={e.id} color={e.paid ? 'green' : 'red'}>{e.subject}</Badge>)}</div>
+                      : <span className="text-gray-300">None yet</span>}
+                    </td>
+                    {!readOnly && (
+                      <td className="px-3 py-2">
+                        <button
+                          onClick={() => { if (window.confirm('Remove ' + s.name + '? This will also delete their enrollments.')) onDelete && onDelete(s.id) }}
+                          className="bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-700 border border-red-200 rounded-lg px-3 py-1 text-xs font-medium flex items-center gap-1 whitespace-nowrap"
+                        >
+                          <i className="ti ti-trash" aria-hidden="true" /> Remove
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>}
       </Card>
 
       <Card>
