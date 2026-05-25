@@ -27,7 +27,13 @@ export function useStudents() {
     return { data, error }
   }
 
-  return { students, loading, fetch, addStudent, updateStudent }
+  async function deleteStudent(id) {
+    const { error } = await supabase.from('students').delete().eq('id', id)
+    if (!error) setStudents(prev => prev.filter(s => s.id !== id))
+    return { error }
+  }
+
+  return { students, loading, fetch, addStudent, updateStudent, deleteStudent }
 }
 
 // ── Enrollments ───────────────────────────────────────────────────────────────

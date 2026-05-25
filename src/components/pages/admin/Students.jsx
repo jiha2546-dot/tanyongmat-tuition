@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Card, SectionTitle, Button, Modal, FormRow, FormGroup, Input, Select, Textarea, Badge, DataTable } from '../../shared/UI'
 import { fmtDate, LEVELS, today } from '../../../lib/utils'
 
-export function Students({ students, enrollments, onAdd, readOnly = false }) {
+export function Students({ students, enrollments, onAdd, onDelete, readOnly = false }) {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({ name: '', age: 8, level: 'P1', school: 'Laemthong', notes: '', join_date: today() })
   const [saving, setSaving] = useState(false)
@@ -73,13 +73,13 @@ export function Students({ students, enrollments, onAdd, readOnly = false }) {
       <Card>
         <DataTable
           cols={[
-            { key: 'name', label: 'Name', width: '20%', render: s => <span className="font-medium">{s.name}</span> },
-            { key: 'age', label: 'Age', width: '8%', render: s => `${s.age}y` },
-            { key: 'level', label: 'Level', width: '8%' },
-            { key: 'school', label: 'School', width: '14%' },
-            { key: 'join_date', label: 'Joined', width: '10%', render: s => fmtDate(s.join_date) },
+            { key: 'name', label: 'Name', width: '18%', render: s => <span className="font-medium">{s.name}</span> },
+            { key: 'age', label: 'Age', width: '7%', render: s => `${s.age}y` },
+            { key: 'level', label: 'Level', width: '7%' },
+            { key: 'school', label: 'School', width: '13%' },
+            { key: 'join_date', label: 'Joined', width: '9%', render: s => fmtDate(s.join_date) },
             {
-              key: 'courses', label: 'Enrolled subjects', width: '28%',
+              key: 'courses', label: 'Enrolled subjects', width: '26%',
               render: s => {
                 const enr = enrollments.filter(e => e.student_id === s.id)
                 return enr.length
@@ -87,7 +87,17 @@ export function Students({ students, enrollments, onAdd, readOnly = false }) {
                   : <span className="text-gray-300 text-xs">None yet</span>
               }
             },
-            { key: 'notes', label: 'Notes', width: '12%', render: s => <span className="text-gray-400">{s.notes || '—'}</span> },
+            { key: 'notes', label: 'Notes', width: '10%', render: s => <span className="text-gray-400">{s.notes || '—'}</span> },
+            {
+              key: 'del', label: '', width: '10%',
+              render: s => !readOnly && onDelete ? (
+                <Button size="sm" variant="danger" onClick={() => {
+                  if (window.confirm(`Remove ${s.name} from student list? This will also delete their enrollments.`)) {
+                    onDelete(s.id)
+                  }
+                }}>Remove</Button>
+              ) : null
+            },
           ]}
           rows={students}
           empty="No students yet."

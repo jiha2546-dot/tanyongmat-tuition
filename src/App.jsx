@@ -24,7 +24,6 @@ import { MySchedule, MyStudents } from './components/pages/tutor/TutorPages'
 
 // Outside pages
 import { BookTable, MyBookings } from './components/pages/outside/OutsidePages'
-import { PublicBookPage } from './PublicBook'
 
 import './index.css'
 
@@ -59,7 +58,7 @@ function AppInner() {
               บ้านสวน Homie Learning
             </div>
           </div>
-          <BookTable bookings={bookings} onBooked={() => {}} />
+          <BookTable bookings={[]} onBooked={() => {}} />
           <div className="text-center pb-6">
             <button onClick={() => window.location.href = '/'} className="text-sm text-green-500 hover:underline">
               ← Back to sign in
