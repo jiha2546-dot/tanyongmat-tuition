@@ -24,7 +24,7 @@ export function Students({ students, enrollments, onAdd, onDelete, readOnly = fa
     setDeleting(true)
     const { error } = await supabase.from('students').delete().eq('id', id)
     if (error) {
-      alert('Error: ' + error.message)
+      console.error(error)
     } else {
       onDelete && onDelete(id)
     }
