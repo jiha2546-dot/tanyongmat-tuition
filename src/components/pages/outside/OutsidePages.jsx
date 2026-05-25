@@ -85,7 +85,7 @@ export function BookTable({ bookings, onBooked }) {
       </div>
 
       <div className="bg-green-50 border border-green-100 rounded-xl px-4 py-3 mb-4 text-xs text-green-700">
-        <strong>20 ฿ / ชั่วโมง / โต๊ะ · 20 THB / hour / table</strong>
+        <strong>20 ฿ / ชั่วโมง / โต๊ะ (อย่างต่ำ 1 ชั่วโมง) · นักเรียนสูงสุด 4 คน · ชำระเงินสดที่เคาน์เตอร์</strong>
         {' '}· ครึ่งชั่วโมง = 10 ฿ · 30 min = 10 THB
         · นักเรียนสูงสุด 4 คน · Max 4 students
         · ชำระเงินสดที่เคาน์เตอร์ · Pay cash at counter
@@ -139,7 +139,7 @@ export function BookTable({ bookings, onBooked }) {
 
         {timeOk && (
           <div className="text-xs text-green-600 font-medium">
-            ระยะเวลา · Duration: {Math.floor(hours)}ชม.{hours % 1 ? ' 30นาที' : ''} · ค่าเช่า · Fee: <strong>{fee} ฿</strong>
+            ระยะเวลา: {Math.floor(hours)} ชั่วโมง{hours % 1 ? ' 30 นาที' : ''} · ค่าเช่า: {fee} ฿ | Duration: {Math.floor(hours)} hr{hours % 1 ? ' 30min' : ''} · Fee: {fee} ฿
             {loadingAvail && <span className="text-amber-500 ml-2">กำลังตรวจสอบ · checking...</span>}
           </div>
         )}

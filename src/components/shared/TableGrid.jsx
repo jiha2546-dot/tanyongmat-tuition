@@ -28,7 +28,7 @@ export function TableGrid({ unavailable = [], selected, onSelect, disabled = fal
         />
         <div className={`text-xs font-semibold ${sel ? 'text-white' : 'text-gray-700'}`}>{table}</div>
         <div className={`text-[10px] mt-0.5 ${sel ? 'text-green-100' : 'text-gray-400'}`}>
-          {busy ? 'Unavailable' : sel ? 'Selected' : floor ? 'KG — low table' : 'Available'}
+          {busy ? 'Unavailable' : sel ? 'Selected' : floor ? 'โต๊ะสำหรับเด็กเล็ก' : 'Available'}
         </div>
       </div>
     )
