@@ -1,6 +1,6 @@
 import { fmt, fmtDate, SPLITS, LOAN_TOTAL } from '../../../lib/utils'
 
-export function Audit({ enrollments, bookings, students }) {
+export function Audit({ enrollments = [], bookings = [], students = [] }) {
   const totalEnrollmentIncome = enrollments.filter(e => e.paid).reduce((s, e) => s + Number(e.amount), 0)
   const totalBookingIncome = bookings.filter(b => b.paid && b.status !== 'cancelled').reduce((s, b) => s + Number(b.amount), 0)
   const totalIncome = totalEnrollmentIncome + totalBookingIncome
@@ -113,7 +113,7 @@ export function Audit({ enrollments, bookings, students }) {
   )
 }
 
-export function Financials({ entries, income, expenses, distributable }) {
+export function Financials({ entries = [], income = 0, expenses = 0, distributable = 0 }) {
   const loanRepaid = entries.filter(e => e.category === 'loan_repayment').reduce((s, e) => s + Number(e.amount), 0)
   const loanLeft = Math.max(0, LOAN_TOTAL - loanRepaid)
 
@@ -170,7 +170,7 @@ export function Financials({ entries, income, expenses, distributable }) {
   )
 }
 
-export function PayoutCalc({ distributable, worklog, byPerson, totalHours }) {
+export function PayoutCalc({ distributable = 0, worklog = [], byPerson = {}, totalHours = 0 }) {
   const splits = [
     { label: 'เต๊ะมิง — แรงงาน · Labor (40%)', amount: distributable * SPLITS.labor, color: 'green' },
     { label: 'เต๊ะมิง — ค่าเช่า · Rent (10%)', amount: distributable * SPLITS.rent, color: 'green' },
