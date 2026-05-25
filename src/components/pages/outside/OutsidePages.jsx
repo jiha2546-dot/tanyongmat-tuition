@@ -56,9 +56,7 @@ export function BookTable({ bookings, onBooked }) {
 
   if (confirmed) return (
     <div className="p-4 max-w-lg mx-auto">
-      <div className="bg-green-500 text-white rounded-2xl p-6 text-center mb-4">
-        <i className="ti ti-circle-check text-5xl block mb-3 text-green-100" />
-        <div className="text-xl font-bold mb-2">จองสำเร็จ! · Booking confirmed!</div>
+      <div className="bg-green-50 border border-green-100 rounded-xl px-4 py-3 mb-4 text-xs text-green-700"><div>20 ฿ / ชั่วโมง / โต๊ะ (อย่างต่ำ 1 ชั่วโมง) · นักเรียนสูงสุด 4 คน · ชำระเงินสดที่เคาน์เตอร์</div><div className="text-green-500 mt-0.5">20฿/hr/table (Min 1 hr) · Max 4 students · Pay cash at counter</div></div>
         <div className="text-green-100 text-sm space-y-1">
           <div>โต๊ะ · Table: <strong>{confirmed.table_name}</strong></div>
           <div>วันที่ · Date: <strong>{fmtDate(confirmed.date)}</strong></div>
