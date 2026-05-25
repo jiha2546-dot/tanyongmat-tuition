@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Card, SectionTitle, Button, Modal, FormRow, FormGroup, Input, Select, Textarea, Badge, DataTable } from '../../shared/UI'
+import { Card, SectionTitle, Button, Modal, FormRow, FormGroup, Input, Select, Textarea, Badge } from '../../shared/UI'
 import { fmtDate, LEVELS, today } from '../../../lib/utils'
 
 export function Students({ students, enrollments, onAdd, onDelete, readOnly = false }) {
   const [showForm, setShowForm] = useState(false)
+  const [confirmId, setConfirmId] = useState(null)
   const [form, setForm] = useState({ name: '', age: 8, level: 'P1', school: 'Laemthong', notes: '', join_date: today() })
   const [saving, setSaving] = useState(false)
 
@@ -45,7 +46,17 @@ export function Students({ students, enrollments, onAdd, onDelete, readOnly = fa
         </Modal>
       )}
 
-      <Card>
+      {confirmId && (
+        <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-3 flex items-center justify-between">
+          <span className="text-sm text-red-700 font-medium">Remove <strong>{students.find(s=>s.id===confirmId)?.name}</strong> and all their enrollments?</span>
+          <div className="flex gap-2">
+            <button onClick={() => setConfirmId(null)} className="text-xs px-3 py-1.5 border border-gray-200 rounded-lg bg-white text-gray-600 hover:bg-gray-50">Cancel</button>
+            <button onClick={() => { onDelete && onDelete(confirmId); setConfirmId(null) }} className="text-xs px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium">Yes, remove</button>
+          </div>
+        </div>
+      )}
+
+      <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-3 shadow-sm">
         {students.length === 0 ? <p className="text-sm text-gray-400 text-center py-4">No students yet.</p> :
         <div className="overflow-x-auto">
           <table className="w-full text-xs border-collapse">
@@ -64,7 +75,7 @@ export function Students({ students, enrollments, onAdd, onDelete, readOnly = fa
               {students.map(s => {
                 const enr = enrollments.filter(e => e.student_id === s.id)
                 return (
-                  <tr key={s.id} className="hover:bg-gray-50 border-b border-gray-50">
+                  <tr key={s.id} className="hover:bg-gray-50 border-b border-gray-50 last:border-0">
                     <td className="px-3 py-2 font-medium text-gray-800">{s.name}</td>
                     <td className="px-3 py-2 text-gray-600">{s.age}y</td>
                     <td className="px-3 py-2 text-gray-600">{s.level}</td>
@@ -76,10 +87,8 @@ export function Students({ students, enrollments, onAdd, onDelete, readOnly = fa
                     </td>
                     {!readOnly && (
                       <td className="px-3 py-2">
-                        <button
-                          onClick={() => { if (window.confirm('Remove ' + s.name + '? This will also delete their enrollments.')) onDelete && onDelete(s.id) }}
-                          className="bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-700 border border-red-200 rounded-lg px-3 py-1 text-xs font-medium flex items-center gap-1 whitespace-nowrap"
-                        >
+                        <button onClick={() => setConfirmId(s.id)}
+                          className="bg-red-50 hover:bg-red-100 text-red-500 border border-red-200 rounded-lg px-2 py-1 text-xs flex items-center gap-1 whitespace-nowrap">
                           <i className="ti ti-trash" aria-hidden="true" /> Remove
                         </button>
                       </td>
@@ -90,16 +99,16 @@ export function Students({ students, enrollments, onAdd, onDelete, readOnly = fa
             </tbody>
           </table>
         </div>}
-      </Card>
+      </div>
 
-      <Card>
+      <div className="bg-white border border-gray-100 rounded-2xl p-4 mb-3 shadow-sm">
         <SectionTitle icon="ti-chart-bar">Data insights</SectionTitle>
         <div className="grid grid-cols-3 gap-4 text-xs">
           <div><div className="font-medium text-gray-500 mb-2">Popular subjects</div>{Object.entries(subjectCounts).sort((a,b)=>b[1]-a[1]).map(([s,c])=><div key={s} className="flex justify-between py-1 border-b border-gray-50"><span>{s}</span><span className="font-semibold">{c}</span></div>)}</div>
           <div><div className="font-medium text-gray-500 mb-2">Levels</div>{Object.entries(levelCounts).sort().map(([l,c])=><div key={l} className="flex justify-between py-1 border-b border-gray-50"><span>{l}</span><span className="font-semibold">{c}</span></div>)}</div>
           <div><div className="font-medium text-gray-500 mb-2">Enrollment types</div><div className="flex justify-between py-1 border-b border-gray-50"><span>Course</span><span className="font-semibold">{enrollments.filter(e=>e.type==='course').length}</span></div><div className="flex justify-between py-1 border-b border-gray-50"><span>Hourly</span><span className="font-semibold">{enrollments.filter(e=>e.type==='hourly').length}</span></div><div className="mt-3 text-gray-400">Avg age: <span className="font-semibold text-gray-600">{avgAge}y</span></div></div>
         </div>
-      </Card>
+      </div>
     </div>
   )
 }
