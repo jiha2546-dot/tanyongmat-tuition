@@ -38,7 +38,7 @@ export function LoginPage() {
         <p className="text-center text-xs text-gray-400 mb-6">ไม่ต้องสมัครสมาชิก · No sign-in required</p>
 
         {/* Contact info */}
-        <div className="grid grid-cols-3 gap-2 mb-6">
+        <div className="grid grid-cols-4 gap-2 mb-6">
           <a href="https://www.facebook.com/profile.php?id=61590004118012"
             target="_blank" rel="noreferrer"
             className="flex flex-col items-center gap-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-xl py-3 px-2 transition-colors">
@@ -48,7 +48,7 @@ export function LoginPage() {
             <span className="text-xs font-medium">Facebook</span>
           </a>
 
-          <a href="https://line.me/R/ti/p/@rumgc"
+          <a href="https://lin.ee/ZEssBp3"
             target="_blank" rel="noreferrer"
             className="flex flex-col items-center gap-1 bg-green-50 hover:bg-green-100 text-green-600 rounded-xl py-3 px-2 transition-colors">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
@@ -61,6 +61,13 @@ export function LoginPage() {
             className="flex flex-col items-center gap-1 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-xl py-3 px-2 transition-colors">
             <i className="ti ti-phone text-2xl" aria-hidden="true" />
             <span className="text-xs font-medium">โทร</span>
+          </a>
+
+          <a href="https://www.google.com/maps?q=6.2943056,101.7178056"
+            target="_blank" rel="noreferrer"
+            className="flex flex-col items-center gap-1 bg-red-50 hover:bg-red-100 text-red-500 rounded-xl py-3 px-2 transition-colors">
+            <i className="ti ti-map-pin text-2xl" aria-hidden="true" />
+            <span className="text-xs font-medium">แผนที่</span>
           </a>
         </div>
 
