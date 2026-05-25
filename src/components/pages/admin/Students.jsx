@@ -17,87 +17,52 @@ export function Students({ students, enrollments, onAdd, onDelete, readOnly = fa
     setSaving(false)
   }
 
-  // Subject counts for insights
   const subjectCounts = {}
   enrollments.forEach(e => { subjectCounts[e.subject] = (subjectCounts[e.subject] || 0) + 1 })
-
   const levelCounts = {}
   students.forEach(s => { levelCounts[s.level] = (levelCounts[s.level] || 0) + 1 })
-
-  const avgAge = students.length
-    ? (students.reduce((s, x) => s + Number(x.age), 0) / students.length).toFixed(1)
-    : '—'
+  const avgAge = students.length ? (students.reduce((s, x) => s + Number(x.age), 0) / students.length).toFixed(1) : '—'
 
   return (
     <div className="p-4">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold text-gray-800">Students</h2>
-        {!readOnly && (
-          <Button variant="primary" onClick={() => setShowForm(s => !s)}>
-            <i className="ti ti-plus" aria-hidden="true" /> Add student
-          </Button>
-        )}
+        {!readOnly && <Button variant="primary" onClick={() => setShowForm(s => !s)}><i className="ti ti-plus" aria-hidden="true" /> Add student</Button>}
       </div>
 
       {showForm && (
         <Modal title="Add student" onClose={() => setShowForm(false)}>
           <FormRow>
-            <FormGroup label="Full name">
-              <Input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Student full name" />
-            </FormGroup>
-            <FormGroup label="Age">
-              <Input type="number" min="4" max="18" value={form.age} onChange={e => set('age', e.target.value)} />
-            </FormGroup>
+            <FormGroup label="Full name"><Input value={form.name} onChange={e => set('name', e.target.value)} placeholder="Student full name" /></FormGroup>
+            <FormGroup label="Age"><Input type="number" min="4" max="18" value={form.age} onChange={e => set('age', e.target.value)} /></FormGroup>
           </FormRow>
           <FormRow>
-            <FormGroup label="Level">
-              <Select value={form.level} onChange={e => set('level', e.target.value)}>
-                {LEVELS.map(l => <option key={l}>{l}</option>)}
-              </Select>
-            </FormGroup>
-            <FormGroup label="School">
-              <Input value={form.school} onChange={e => set('school', e.target.value)} />
-            </FormGroup>
+            <FormGroup label="Level"><Select value={form.level} onChange={e => set('level', e.target.value)}>{LEVELS.map(l => <option key={l}>{l}</option>)}</Select></FormGroup>
+            <FormGroup label="School"><Input value={form.school} onChange={e => set('school', e.target.value)} /></FormGroup>
           </FormRow>
-          <div className="mb-4">
-            <FormGroup label="Notes">
-              <Textarea value={form.notes} onChange={e => set('notes', e.target.value)} rows={2} placeholder="Any relevant notes..." />
-            </FormGroup>
-          </div>
-          <Button variant="primary" size="lg" className="w-full justify-center" onClick={save} disabled={saving}>
-            {saving ? 'Saving...' : 'Save student'}
-          </Button>
+          <div className="mb-4"><FormGroup label="Notes"><Textarea value={form.notes} onChange={e => set('notes', e.target.value)} rows={2} /></FormGroup></div>
+          <Button variant="primary" size="lg" className="w-full justify-center" onClick={save} disabled={saving}>{saving ? 'Saving...' : 'Save student'}</Button>
         </Modal>
       )}
 
       <Card>
         <DataTable
           cols={[
-            { key: 'name', label: 'Name', width: '18%', render: s => <span className="font-medium">{s.name}</span> },
-            { key: 'age', label: 'Age', width: '7%', render: s => `${s.age}y` },
+            { key: 'name', label: 'Name', width: '20%', render: s => <span className="font-medium">{s.name}</span> },
+            { key: 'age', label: 'Age', width: '7%', render: s => s.age + 'y' },
             { key: 'level', label: 'Level', width: '7%' },
             { key: 'school', label: 'School', width: '13%' },
             { key: 'join_date', label: 'Joined', width: '9%', render: s => fmtDate(s.join_date) },
-            {
-              key: 'courses', label: 'Enrolled subjects', width: '26%',
-              render: s => {
-                const enr = enrollments.filter(e => e.student_id === s.id)
-                return enr.length
-                  ? <div className="flex flex-wrap gap-1">{enr.map(e => <Badge key={e.id} color={e.paid ? 'green' : 'red'}>{e.subject}</Badge>)}</div>
-                  : <span className="text-gray-300 text-xs">None yet</span>
-              }
-            },
-            { key: 'notes', label: 'Notes', width: '10%', render: s => <span className="text-gray-400">{s.notes || '—'}</span> },
-            {
-              key: 'del', label: '', width: '10%',
-              render: s => !readOnly && onDelete ? (
-                <Button size="sm" variant="danger" onClick={() => {
-                  if (window.confirm(`Remove ${s.name} from student list? This will also delete their enrollments.`)) {
-                    onDelete(s.id)
-                  }
-                }}>Remove</Button>
-              ) : null
-            },
+            { key: 'courses', label: 'Enrolled subjects', width: '28%', render: s => {
+              const enr = enrollments.filter(e => e.student_id === s.id)
+              return enr.length ? <div className="flex flex-wrap gap-1">{enr.map(e => <Badge key={e.id} color={e.paid ? 'green' : 'red'}>{e.subject}</Badge>)}</div> : <span className="text-gray-300 text-xs">None yet</span>
+            }},
+            { key: 'del', label: '', width: '16%', render: s => !readOnly && onDelete ? (
+              <button onClick={() => { if (window.confirm('Remove ' + s.name + '? This will also delete their enrollments.')) onDelete(s.id) }}
+                className="flex items-center gap-1 text-xs text-red-400 hover:text-red-600 border border-red-200 hover:border-red-400 px-2 py-1 rounded-lg">
+                <i className="ti ti-trash" aria-hidden="true" /> Remove
+              </button>
+            ) : null },
           ]}
           rows={students}
           empty="No students yet."
@@ -107,32 +72,9 @@ export function Students({ students, enrollments, onAdd, onDelete, readOnly = fa
       <Card>
         <SectionTitle icon="ti-chart-bar">Data insights</SectionTitle>
         <div className="grid grid-cols-3 gap-4 text-xs">
-          <div>
-            <div className="font-medium text-gray-500 mb-2">Popular subjects</div>
-            {Object.entries(subjectCounts).sort((a, b) => b[1] - a[1]).map(([s, c]) => (
-              <div key={s} className="flex justify-between py-1 border-b border-gray-50">
-                <span>{s}</span><span className="font-semibold">{c}</span>
-              </div>
-            ))}
-          </div>
-          <div>
-            <div className="font-medium text-gray-500 mb-2">Levels</div>
-            {Object.entries(levelCounts).sort().map(([l, c]) => (
-              <div key={l} className="flex justify-between py-1 border-b border-gray-50">
-                <span>{l}</span><span className="font-semibold">{c}</span>
-              </div>
-            ))}
-          </div>
-          <div>
-            <div className="font-medium text-gray-500 mb-2">Enrollment types</div>
-            <div className="flex justify-between py-1 border-b border-gray-50">
-              <span>Course</span><span className="font-semibold">{enrollments.filter(e => e.type === 'course').length}</span>
-            </div>
-            <div className="flex justify-between py-1 border-b border-gray-50">
-              <span>Hourly</span><span className="font-semibold">{enrollments.filter(e => e.type === 'hourly').length}</span>
-            </div>
-            <div className="mt-3 text-gray-400">Avg age: <span className="font-semibold text-gray-600">{avgAge}y</span></div>
-          </div>
+          <div><div className="font-medium text-gray-500 mb-2">Popular subjects</div>{Object.entries(subjectCounts).sort((a,b)=>b[1]-a[1]).map(([s,c])=><div key={s} className="flex justify-between py-1 border-b border-gray-50"><span>{s}</span><span className="font-semibold">{c}</span></div>)}</div>
+          <div><div className="font-medium text-gray-500 mb-2">Levels</div>{Object.entries(levelCounts).sort().map(([l,c])=><div key={l} className="flex justify-between py-1 border-b border-gray-50"><span>{l}</span><span className="font-semibold">{c}</span></div>)}</div>
+          <div><div className="font-medium text-gray-500 mb-2">Enrollment types</div><div className="flex justify-between py-1 border-b border-gray-50"><span>Course</span><span className="font-semibold">{enrollments.filter(e=>e.type==='course').length}</span></div><div className="flex justify-between py-1 border-b border-gray-50"><span>Hourly</span><span className="font-semibold">{enrollments.filter(e=>e.type==='hourly').length}</span></div><div className="mt-3 text-gray-400">Avg age: <span className="font-semibold text-gray-600">{avgAge}y</span></div></div>
         </div>
       </Card>
     </div>
