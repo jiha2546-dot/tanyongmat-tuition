@@ -75,13 +75,31 @@ export function useEnrollments() {
       }
     }
 
-    return updateEnrollment(id, {
+    const result = await updateEnrollment(id, {
       paid: true,
       amount,
       pay_date: payDate,
       pay_method: payMethod,
       evidence_url,
     })
+
+    // Auto cash entry
+    if (!result.error) {
+      const enr = enrollments.find(e => e.id === id)
+      if (enr) {
+        const studentName = enr.students?.name || 'Student'
+        const desc = `Course fee — ${studentName} / ${enr.subject} (${enr.type === 'course' ? enr.course_type : 'Hourly'})`
+        await supabase.from('cash_entries').insert([{
+          date: payDate || new Date().toISOString().slice(0, 10),
+          description: desc,
+          amount,
+          type: 'income',
+          note: `Payment method: ${payMethod || '—'}${evidence_url ? ' · Evidence uploaded' : ''}`,
+        }])
+      }
+    }
+
+    return result
   }
 
   async function markUnpaid(id) {

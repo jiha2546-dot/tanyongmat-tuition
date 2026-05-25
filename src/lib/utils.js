@@ -12,8 +12,29 @@ export const toMins = (t) => {
 export const overlaps = (s1, e1, s2, e2) =>
   toMins(s1) < toMins(e2) && toMins(e1) > toMins(s2)
 
-export const calcHours = (start, end) =>
-  Math.max(1, Math.round((new Date(`2000-01-01T${end}`) - new Date(`2000-01-01T${start}`)) / 3600000))
+export const calcHours = (start, end) => {
+  const mins = toMins(end) - toMins(start)
+  // Round to nearest 30 mins, minimum 60 mins
+  const rounded = Math.max(60, Math.round(mins / 30) * 30)
+  return rounded / 60
+}
+
+// Fee: 20 THB per hour, 10 THB per 30 mins, minimum 1 hr = 20 THB
+export const calcFee = (start, end) => {
+  const mins = toMins(end) - toMins(start)
+  const rounded = Math.max(60, Math.round(mins / 30) * 30)
+  return (rounded / 30) * 10
+}
+
+// Generate 30-min time slots for dropdowns
+export const TIME_SLOTS = (() => {
+  const slots = []
+  for (let h = 9; h <= 21; h++) {
+    slots.push(`${String(h).padStart(2,'0')}:00`)
+    if (h < 21) slots.push(`${String(h).padStart(2,'0')}:30`)
+  }
+  return slots
+})()
 
 export const CHAIR_TABLES = ['T1', 'T2', 'T3', 'T4', 'T5']
 export const FLOOR_TABLES = ['Floor A', 'Floor B', 'Floor C']

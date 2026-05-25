@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Card, SectionTitle, Button, Modal, FormRow, FormGroup, Input, Select, Badge, DataTable, Alert } from '../../shared/UI'
 import { TableGrid } from '../../shared/TableGrid'
-import { fmt, fmtDate, calcHours, getUnavailableTables, ALL_TABLES, today } from '../../../lib/utils'
+import { fmt, fmtDate, calcHours, calcFee, getUnavailableTables, ALL_TABLES, today, TIME_SLOTS } from '../../../lib/utils'
 
 export function Bookings({ bookings, tutorNames = [], onAdd, onTogglePaid, onCancel }) {
   const [showForm, setShowForm] = useState(false)
@@ -16,13 +16,23 @@ export function Bookings({ bookings, tutorNames = [], onAdd, onTogglePaid, onCan
     ? getUnavailableTables(bookings, form.date, form.start_time, form.end_time)
     : []
 
-  function set(k, v) { setForm(f => ({ ...f, [k]: v })) }
+  function set(k, v) {
+    setForm(f => {
+      const updated = { ...f, [k]: v }
+      // Auto-calculate fee when time changes
+      if ((k === 'start_time' || k === 'end_time') && updated.start_time && updated.end_time) {
+        updated.amount = calcFee(updated.start_time, updated.end_time)
+      }
+      return updated
+    })
+  }
 
   async function save() {
     if (!form.table_name) { alert('Please select a table.'); return }
     setSaving(true)
     const hours = calcHours(form.start_time, form.end_time)
-    await onAdd({ ...form, hours, status: 'confirmed', amount: Number(form.amount) })
+    const amount = calcFee(form.start_time, form.end_time)
+    await onAdd({ ...form, hours, status: 'confirmed', amount })
     setShowForm(false)
     setSaving(false)
   }
@@ -88,12 +98,26 @@ export function Bookings({ bookings, tutorNames = [], onAdd, onTogglePaid, onCan
           </FormRow>
           <FormRow>
             <FormGroup label="Start time">
-              <Input type="time" value={form.start_time} onChange={e => set('start_time', e.target.value)} />
+              <select className="text-sm px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-800 w-full focus:outline-none focus:ring-2 focus:ring-green-200"
+                value={form.start_time} onChange={e => set('start_time', e.target.value)}>
+                {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
             </FormGroup>
             <FormGroup label="End time">
-              <Input type="time" value={form.end_time} onChange={e => set('end_time', e.target.value)} />
+              <select className="text-sm px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-800 w-full focus:outline-none focus:ring-2 focus:ring-green-200"
+                value={form.end_time} onChange={e => set('end_time', e.target.value)}>
+                {TIME_SLOTS.filter(t => t > form.start_time).map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
             </FormGroup>
           </FormRow>
+          {form.start_time && form.end_time && form.end_time > form.start_time && (
+            <div className="text-xs text-green-600 mb-3 px-1">
+              Fee auto-calculated: <strong>{calcFee(form.start_time, form.end_time)} THB</strong>
+              {' '}({calcHours(form.start_time, form.end_time) >= 1
+                ? `${Math.floor(calcHours(form.start_time, form.end_time))}hr${calcHours(form.start_time, form.end_time) % 1 ? ' 30min' : ''}`
+                : ''})
+            </div>
+          )}
           <div className="mb-4">
             <label className="text-xs text-gray-400 mb-2 block">Table</label>
             <TableGrid

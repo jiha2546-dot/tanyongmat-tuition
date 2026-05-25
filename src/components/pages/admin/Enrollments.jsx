@@ -148,11 +148,13 @@ export function Enrollments({ enrollments, students, tutorNames = [], onAdd, onR
             { key: 'status', label: 'Status', width: '9%', render: e => <Badge color={e.paid ? 'green' : 'red'}>{e.paid ? 'Paid' : 'Unpaid'}</Badge> },
             { key: 'pay_method', label: 'Method', width: '9%', render: e => e.pay_method || '—' },
             { key: 'pay_date', label: 'Date', width: '8%', render: e => e.pay_date ? fmtDate(e.pay_date) : '—' },
-            {
-              key: 'evidence', label: 'Evidence', width: '8%',
+            { key: 'evidence', label: 'Evidence', width: '9%',
               render: e => e.evidence_url
-                ? <a href={e.evidence_url} target="_blank" rel="noreferrer"><Badge color="green"><i className="ti ti-check mr-0.5" aria-hidden="true" />View</Badge></a>
-                : <Badge color="gray">None</Badge>
+                ? <a href={e.evidence_url} target="_blank" rel="noreferrer" className="flex items-center gap-1">
+                    <img src={e.evidence_url} alt="slip" className="w-8 h-6 object-cover rounded border border-gray-200" />
+                    <span className="text-green-600 text-xs">View</span>
+                  </a>
+                : <span className="text-gray-300 text-xs">None</span>
             },
             {
               key: 'action', label: '', width: '7%',

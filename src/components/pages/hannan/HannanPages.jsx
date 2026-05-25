@@ -30,8 +30,11 @@ export function Audit({ bookings, enrollments, income, expenses, distributable }
             { key: 'pay_method', label: 'Method', width: '12%', render: e => e.pay_method || '—' },
             { key: 'pay_date', label: 'Date', width: '10%', render: e => e.pay_date ? fmtDate(e.pay_date) : '—' },
             { key: 'evidence', label: 'Evidence', width: '18%', render: e => e.evidence_url
-              ? <a href={e.evidence_url} target="_blank" rel="noreferrer"><Badge color="green"><i className="ti ti-check mr-0.5" aria-hidden="true" />View</Badge></a>
-              : <Badge color="gray">None</Badge>
+              ? <a href={e.evidence_url} target="_blank" rel="noreferrer" className="flex items-center gap-2">
+                  <img src={e.evidence_url} alt="Payment evidence" className="w-10 h-7 object-cover rounded border border-gray-200" />
+                  <span className="text-green-600 text-xs">View</span>
+                </a>
+              : <span className="text-gray-300 text-xs">None</span>
             },
           ]}
           rows={enrollments}

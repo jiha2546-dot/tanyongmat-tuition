@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, Alert, Button, FormRow, FormGroup, Input, Badge } from '../../shared/UI'
 import { TableGrid } from '../../shared/TableGrid'
-import { fmt, fmtDate, calcHours, getUnavailableTables, isFloor, today } from '../../../lib/utils'
+import { fmt, fmtDate, calcHours, calcFee, getUnavailableTables, overlaps, isFloor, today, TIME_SLOTS } from '../../../lib/utils'
 import { supabase } from '../../../lib/supabase'
 
 // ── Book a table (public, no login) ──────────────────────────────────────────
@@ -15,35 +15,69 @@ export function BookTable({ bookings, onBooked }) {
   const [confirmed, setConfirmed] = useState(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [liveUnavail, setLiveUnavail] = useState([])
+  const [loadingAvail, setLoadingAvail] = useState(false)
 
   function set(k, v) {
     setForm(f => ({ ...f, [k]: v }))
-    setSelectedTable(null) // reset table when time changes
+    setSelectedTable(null)
   }
 
   const timeOk = form.date && form.start_time && form.end_time &&
     form.end_time > form.start_time
 
-  const unavail = timeOk
-    ? getUnavailableTables(bookings, form.date, form.start_time, form.end_time)
-    : []
+  // Fetch live availability from Supabase whenever date/time changes
+  useEffect(() => {
+    if (!timeOk) { setLiveUnavail([]); return }
+    setLoadingAvail(true)
+    supabase
+      .from('bookings')
+      .select('table_name, start_time, end_time')
+      .eq('date', form.date)
+      .neq('status', 'cancelled')
+      .then(({ data }) => {
+        if (data) {
+          const taken = data
+            .filter(b => overlaps(form.start_time, form.end_time, b.start_time, b.end_time))
+            .map(b => b.table_name)
+          setLiveUnavail(taken)
+        }
+        setLoadingAvail(false)
+      })
+  }, [form.date, form.start_time, form.end_time, timeOk])
 
+  const unavail = liveUnavail
   const hours = timeOk ? calcHours(form.start_time, form.end_time) : 0
-  const fee = hours * 20
+  const fee = timeOk ? calcFee(form.start_time, form.end_time) : 0
 
   async function submit() {
     if (!form.booker_name) { setError('Please enter your name.'); return }
     if (!form.date) { setError('Please select a date.'); return }
     if (!selectedTable) { setError('Please select a table.'); return }
     if (!timeOk) { setError('Please check your start and end times.'); return }
-    if (unavail.includes(selectedTable)) {
-      setError('That table was just taken. Please choose another.')
-      setSelectedTable(null)
-      return
-    }
 
     setSaving(true)
     setError('')
+
+    // Real-time overlap check directly from Supabase right before saving
+    const { data: freshBookings } = await supabase
+      .from('bookings')
+      .select('table_name, start_time, end_time')
+      .eq('date', form.date)
+      .eq('table_name', selectedTable)
+      .neq('status', 'cancelled')
+
+    if (freshBookings && freshBookings.length > 0) {
+      const conflict = freshBookings.some(b =>
+        overlaps(form.start_time, form.end_time, b.start_time, b.end_time)
+      )
+      if (conflict) {
+        setError('Sorry, that table was just booked by someone else. Please choose another table.')
+        setSelectedTable(null)
+        setSaving(false)
+        return
+      }
+    }
 
     const booking = {
       type: 'outside',
@@ -127,17 +161,36 @@ export function BookTable({ bookings, onBooked }) {
 
         <FormRow>
           <FormGroup label="Start time">
-            <Input type="time" value={form.start_time} onChange={e => set('start_time', e.target.value)} />
+            <select
+              className="text-sm px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-800 w-full focus:outline-none focus:ring-2 focus:ring-green-200"
+              value={form.start_time}
+              onChange={e => set('start_time', e.target.value)}
+            >
+              {TIME_SLOTS.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
           </FormGroup>
           <FormGroup label="End time">
-            <Input type="time" value={form.end_time} onChange={e => set('end_time', e.target.value)} />
+            <select
+              className="text-sm px-3 py-2 rounded-lg border border-gray-200 bg-white text-gray-800 w-full focus:outline-none focus:ring-2 focus:ring-green-200"
+              value={form.end_time}
+              onChange={e => set('end_time', e.target.value)}
+            >
+              {TIME_SLOTS.filter(t => t > form.start_time).map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
           </FormGroup>
         </FormRow>
+        {timeOk && (
+          <div className="text-xs text-green-600 mb-3 px-1">
+            Duration: {hours >= 1 ? `${Math.floor(hours)}hr${hours % 1 ? ' 30min' : ''}` : ''} · Fee: <strong>{fee} THB</strong>
+            {hours < 1 && <span className="text-amber-600"> (minimum 1 hour)</span>}
+          </div>
+        )}
 
         <div className="mb-4">
           <label className="text-xs text-gray-400 mb-2 block">
             Select a table
             {!timeOk && <span className="text-gray-300 ml-1">— fill in date & time first</span>}
+            {timeOk && loadingAvail && <span className="text-amber-500 ml-1">— checking availability...</span>}
           </label>
           <TableGrid
             unavailable={unavail}
